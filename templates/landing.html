@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Home | Flask Mongo App{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <p class="eyebrow">Local MongoDB + Flask</p>
+        <h1>Simple authentication app with a clean dashboard.</h1>
+        <p class="hero-text">
+            Register a user, store the account safely in MongoDB, login, and open a protected dashboard.
+        </p>
+        <div class="actions">
+            <a class="button" href="{{ url_for('register') }}">Create account</a>
+            <a class="button secondary" href="{{ url_for('login') }}">Login</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

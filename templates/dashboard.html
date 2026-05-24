@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Flask Mongo App{% endblock %}
+
+{% block content %}
+{% if space_data and space_data.models %}
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+{% endif %}
+
+<section class="dashboard">
+    <div class="dashboard-header">
+        <div>
+            <p class="eyebrow">Dashboard</p>
+            <h1>Hello, {{ user.name }}</h1>
+            <p class="muted">Search rockets, missions, planets, moons, satellites, and space topics.</p>
+        </div>
+        <a class="button secondary" href="{{ url_for('logout') }}">Logout</a>
+    </div>
+
+    <form class="space-search" method="GET" action="{{ url_for('dashboard') }}">
+        <input
+            id="q"
+            name="q"
+            type="search"
+            value="{{ query }}"
+            placeholder="Search Falcon 9, Saturn V, Moon, Mars rover, Artemis, ISS..."
+            required
+        >
+        <button class="button" type="submit">Search</button>
+    </form>
+
+    {% if space_data %}
+        {% if space_data.error %}
+            <div class="flash warning">{{ space_data.error }}</div>
+        {% endif %}
+
+        <div class="result-header">
+            <div>
+                <p class="eyebrow">Results</p>
+                <h2>{{ space_data.query }}</h2>
+            </div>
+            <span>{{ space_data.images|length }} images · {{ space_data.models|length }} 3D models</span>
+        </div>
+
+        {% if space_data.summary %}
+            <article class="summary-panel">
+                {% if space_data.summary.image %}
+                    <img src="{{ space_data.summary.image }}" alt="{{ space_data.summary.title }}">
+                {% endif %}
+                <div>
+                    <span>Wikipedia summary</span>
+                    <h3>{{ space_data.summary.title }}</h3>
+                    <p>{{ space_data.summary.extract }}</p>
+                    {% if space_data.summary.url %}
+                        <a href="{{ space_data.summary.url }}" target="_blank" rel="noreferrer">Open source</a>
+                    {% endif %}
+                </div>
+            </article>
+        {% endif %}
+
+        {% if space_data.models %}
+            <section class="model-section">
+                <h2>Interactive 3D</h2>
+                <div class="model-grid">
+                    {% for model in space_data.models %}
+                        <article class="model-card">
+                            <model-viewer
+                                src="{{ model.model_url }}"
+                                camera-controls
+                                auto-rotate
+                                shadow-intensity="1"
+                                ar
+                                loading="lazy"
+                                alt="{{ model.title }}"
+                            ></model-viewer>
+                            <div>
+                                <h3>{{ model.title }}</h3>
+                                <p>{{ model.source }}</p>
+                                <a href="{{ model.page_url }}" target="_blank" rel="noreferrer">View NASA page</a>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endif %}
+
+        {% if space_data.images %}
+            <section class="image-section">
+                <h2>NASA Images</h2>
+                <div class="image-grid">
+                    {% for image in space_data.images %}
+                        <article class="image-card">
+                            <img src="{{ image.thumbnail }}" alt="{{ image.title }}">
+                            <div>
+                                <span>{{ image.date or "NASA" }}</span>
+                                <h3>{{ image.title }}</h3>
+                                <p>{{ image.description }}</p>
+                                {% if image.href %}
+                                    <a href="{{ image.href }}" target="_blank" rel="noreferrer">Open asset data</a>
+                                {% endif %}
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+        {% else %}
+            <article class="empty-state">
+                <h2>No NASA images found</h2>
+                <p>Try a broader search like “rocket”, “Mars”, “Moon”, “Artemis”, “ISS”, or “satellite”.</p>
+            </article>
+        {% endif %}
+    {% else %}
+        <div class="quick-searches">
+            <a href="{{ url_for('dashboard', q='Saturn V rocket') }}">Saturn V</a>
+            <a href="{{ url_for('dashboard', q='Falcon 9 rocket') }}">Falcon 9</a>
+            <a href="{{ url_for('dashboard', q='Moon') }}">Moon</a>
+            <a href="{{ url_for('dashboard', q='Mars rover') }}">Mars rover</a>
+            <a href="{{ url_for('dashboard', q='International Space Station') }}">ISS</a>
+            <a href="{{ url_for('dashboard', q='Artemis') }}">Artemis</a>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}
